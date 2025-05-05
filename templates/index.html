@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retinal Disease Classification</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3a86ff;
+            --secondary: #8338ec;
+            --accent: #ff006e;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #38b000;
+            --warning: #ffbe0b;
+            --danger: #ff5a5f;
+            --gradient: linear-gradient(135deg, #3a86ff, #8338ec);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background: var(--gradient);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        nav ul li a:hover {
+            opacity: 0.8;
+        }
+        
+        .hero {
+            padding: 4rem 0;
+            background-color: white;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin: 2rem 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            margin: 2rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary);
+            background-color: rgba(58, 134, 255, 0.05);
+        }
+        
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .upload-area h3 {
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .upload-area p {
+            color: #888;
+        }
+        
+        #file-input {
+            display: none;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .preview-container {
+            display: none;
+            margin: 2rem 0;
+        }
+        
+        .preview-container.show {
+            display: block;
+        }
+        
+        .image-preview {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-container {
+            display: none;
+            margin: 2rem 0;
+        }
+        
+        .result-container.show {
+            display: block;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .result-icon {
+            font-size: 2rem;
+            margin-right: 1.5rem;
+        }
+        
+        .result-details {
+            flex: 1;
+        }
+        
+        .result-details h3 {
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .result-details p {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .confidence-bar {
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .confidence-level {
+            height: 100%;
+            border-radius: 5px;
+            background: var(--gradient);
+        }
+        
+        .features {
+            padding: 4rem 0;
+            background: #f9f9f9;
+        }
+        
+        .features h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 3rem;
+            color: var(--dark);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-card i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+        
+        .feature-card p {
+            color: #666;
+        }
+        
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        footer p {
+            opacity: 0.8;
+        }
+        
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .loader.show {
+            display: block;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(58, 134, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header .container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+                justify-content: center;
+            }
+            
+            nav ul li {
+                margin: 0 0.7rem;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-eye"></i>
+                <span>JM-RetiScan AI</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Retinal Disease Classification</h1>
+            <p>Advanced AI technology to help diagnose retinal diseases from images with high accuracy. Upload your retinal scan and get instant analysis.</p>
+            <a href="#upload" class="btn">Get Started</a>
+        </div>
+    </section>
+
+    <section id="upload">
+        <div class="container">
+            <div class="card">
+                <h2>Analyze Retinal Image</h2>
+                <p>Upload a high-quality retinal scan image for analysis. Our AI model will classify potential diseases with detailed confidence scores.</p>
+                
+                <div class="upload-area" id="drop-area">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Drag & Drop or Click to Upload</h3>
+                    <p>Supported formats: JPG, PNG (Max size: 5MB)</p>
+                    <input type="file" id="file-input" accept="image/*">
+                </div>
+                
+                <div class="preview-container" id="preview-container">
+                    <h3>Image Preview</h3>
+                    <img id="image-preview" class="image-preview" src="" alt="Retinal scan preview">
+                    <div style="margin-top: 1rem; text-align: center;">
+                        <button id="analyze-btn" class="btn">Analyze Image</button>
+                        <button id="reset-btn" class="btn btn-outline" style="margin-left: 10px;">Reset</button>
+                    </div>
+                </div>
+                
+                <div class="loader" id="loader">
+                    <div class="spinner"></div>
+                    <p>Analyzing image. Please wait...</p>
+                </div>
+                
+                <div class="result-container" id="result-container">
+                    <h3>Analysis Results</h3>
+                    
+                    <div class="result-card">
+                        <div class="result-icon">
+                            <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                        </div>
+                        <div class="result-details">
+                            <h3>Primary Diagnosis</h3>
+                            <p id="primary-diagnosis">Diabetic Retinopathy</p>
+                            <p>Confidence: <span id="primary-confidence">92%</span></p>
+                            <div class="confidence-bar">
+                                <div class="confidence-level" id="primary-confidence-bar" style="width: 92%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-icon">
+                            <i class="fas fa-info-circle" style="color: var(--primary);"></i>
+                        </div>
+                        <div class="result-details">
+                            <h3>Other Possibilities</h3>
+                            <div id="other-diagnoses">
+                                <p>Age-related Macular Degeneration: <span>5%</span></p>
+                                <div class="confidence-bar">
+                                    <div class="confidence-level" style="width: 5%;"></div>
+                                </div>
+                                <p>Glaucoma: <span>2%</span></p>
+                                <div class="confidence-bar">
+                                    <div class="confidence-level" style="width: 2%;"></div>
+                                </div>
+                                <p>Normal: <span>1%</span></p>
+                                <div class="confidence-bar">
+                                    <div class="confidence-level" style="width: 1%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 2rem;">
+                        <!-- <a href="#" class="btn" id="download-report">Download Report</a> -->
+                        <button id="new-analysis" class="btn btn-outline" style="margin-left: 10px;">New Analysis</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2>Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-brain"></i>
+                    <h3>Advanced AI Model</h3>
+                    <p>Utilizes state-of-the-art deep learning models specifically trained on thousands of retinal images.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Instant Analysis</h3>
+                    <p>Get results within seconds, allowing for quick decision-making and early intervention.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-pie"></i>
+                    <h3>Detailed Reports</h3>
+                    <p>Comprehensive reports with confidence scores and multiple diagnostic possibilities.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" style="padding: 4rem 0; background: white;">
+        <div class="container">
+            <div class="card">
+                <h2>About Our Technology</h2>
+                <p>JM-RetiScan AI uses convolutional neural networks specially designed for medical imaging analysis. Our models have been trained on diverse datasets of retinal images, allowing for accurate classification of multiple retinal conditions including:</p>
+                <ul style="margin: 1rem 0 1rem 2rem;">
+                    <li>Diabetic Retinopathy</li>
+                    <li>Cataract</li>
+                    <li>Glaucoma</li>
+                </ul>
+                <p>While our AI provides highly accurate preliminary classifications, results should always be confirmed by healthcare professionals. This tool is intended to assist in early detection and screening, not to replace professional medical diagnosis.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" style="padding: 4rem 0; background: #f9f9f9;">
+        <div class="container">
+            <div class="card">
+                <h2>Contact Us</h2>
+                <p style="margin-bottom: 1.5rem;">Have questions or feedback? Reach out to our team and we'll get back to you promptly.</p>
+                <!-- <form id="contact-form">
+                    <div style="margin-bottom: 1rem;">
+                        <label for="name" style="display: block; margin-bottom: 0.5rem;">Name</label>
+                        <input type="text" id="name" name="name" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label for="email" style="display: block; margin-bottom: 0.5rem;">Email</label>
+                        <input type="email" id="email" name="email" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label for="message" style="display: block; margin-bottom: 0.5rem;">Message</label>
+                        <textarea id="message" name="message" rows="5" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px;"></textarea>
+                    </div>
+                    <button type="submit" class="btn">Send Message</button>
+                </form> -->
+                <form action="mailto:your-email@example.com" method="post" enctype="text/plain" id="contact-form">
+                    <div style="margin-bottom: 1rem;">
+                        <label for="name" style="display: block; margin-bottom: 0.5rem;">Name</label>
+                        <input type="text" id="name" name="name" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label for="email" style="display: block; margin-bottom: 0.5rem;">Email</label>
+                        <input type="email" id="email" name="email" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label for="message" style="display: block; margin-bottom: 0.5rem;">Message</label>
+                        <textarea id="message" name="message" rows="5" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px;"></textarea>
+                    </div>
+                    <button type="submit" class="btn">Send Message</button>
+                </form>
+                
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 JM-RetiScan AI. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropArea = document.getElementById('drop-area');
+            const fileInput = document.getElementById('file-input');
+            const imagePreview = document.getElementById('image-preview');
+            const previewContainer = document.getElementById('preview-container');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const loader = document.getElementById('loader');
+            const resultContainer = document.getElementById('result-container');
+            const newAnalysisBtn = document.getElementById('new-analysis');
+            const downloadReportBtn = document.getElementById('download-report');
+            const primaryDiagnosis = document.getElementById('primary-diagnosis');
+            const primaryConfidence = document.getElementById('primary-confidence');
+            const primaryConfidenceBar = document.getElementById('primary-confidence-bar');
+            const otherDiagnoses = document.getElementById('other-diagnoses');
+            
+            // Event listeners for drag and drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('dragover');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('dragover');
+            }
+            
+            // Handle file drop
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length) {
+                    handleFiles(files);
+                }
+            }
+            
+            // Handle file selection via click
+            dropArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length) {
+                    handleFiles(fileInput.files);
+                }
+            });
+            
+            function handleFiles(files) {
+                const file = files[0];
+                if (!file.type.match('image.*')) {
+                    alert('Please upload an image file.');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    previewContainer.classList.add('show');
+                    dropArea.style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+
+            analyzeBtn.addEventListener('click', () => {
+                const file = fileInput.files[0];
+                if (!file) return alert("No file selected!");
+
+                const formData = new FormData();
+                formData.append('image', file);
+
+                previewContainer.classList.remove('show');
+                loader.classList.add('show');
+
+                fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    loader.classList.remove('show');
+                    resultContainer.classList.add('show');
+
+                    primaryDiagnosis.textContent = data.primaryDiagnosis;
+                    primaryConfidence.textContent = data.primaryConfidence + "%";
+                    primaryConfidenceBar.style.width = data.primaryConfidence + "%";
+
+                    otherDiagnoses.innerHTML = "";
+                    data.otherDiagnoses.forEach(d => {
+                        otherDiagnoses.innerHTML += `
+                            <p>${d.name}: <span>${d.confidence}%</span></p>
+                            <div class="confidence-bar">
+                                <div class="confidence-level" style="width: ${d.confidence}%;"></div>
+                            </div>
+                        `;
+                    });
+                })
+                .catch(err => {
+                    loader.classList.remove('show');
+                    alert("Something went wrong.");
+                    console.error(err);
+                });
+            });
+
+            
+            function updateResults(results) {
+                primaryDiagnosis.textContent = results.primaryDiagnosis;
+                primaryConfidence.textContent = `${results.primaryConfidence}%`;
+                primaryConfidenceBar.style.width = `${results.primaryConfidence}%`;
+                
+                let otherDiagnosesHTML = '';
+                results.otherDiagnoses.forEach(diagnosis => {
+                    otherDiagnosesHTML += `
+                        <p>${diagnosis.name}: <span>${diagnosis.confidence}%</span></p>
+                        <div class="confidence-bar">
+                            <div class="confidence-level" style="width: ${diagnosis.confidence}%;"></div>
+                        </div>
+                    `;
+                });
+                otherDiagnoses.innerHTML = otherDiagnosesHTML;
+            }
+            
+            // Reset button
+            resetBtn.addEventListener('click', () => {
+                resetUI();
+            });
+            
+            // New analysis button
+            newAnalysisBtn.addEventListener('click', () => {
+                resetUI();
+            });
+            
+            function resetUI() {
+                previewContainer.classList.remove('show');
+                resultContainer.classList.remove('show');
+                dropArea.style.display = 'block';
+                fileInput.value = '';
+                imagePreview.src = '';
+            }
+            
+            // Download report button (mock functionality)
+            downloadReportBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('Report download would begin here. This is a mock feature for demonstration purposes.');
+            });
+            
+            // // Contact form submission (mock functionality)
+            // const contactForm = document.getElementById('contact-form');
+            // contactForm.addEventListener('submit', (e) => {
+            //     e.preventDefault();
+            //     alert('Your message has been sent! (This is a mock feature for demonstration purposes)');
+            //     contactForm.reset();
+            // });
+        });
+    </script>
+</body>
+</html>
